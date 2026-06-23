@@ -38,7 +38,7 @@ struct OnboardingView: View {
     private let outro = OnboardCard(
         kicker: "TWO STEPS LEFT",
         title: "allow screen time,\nthen pick your apps.",
-        body: "screen time is how screenrun locks an app when the clock runs out. nothing leaves your phone."
+        body: "screen time is how Runs locks an app when the clock runs out. nothing leaves your phone."
     )
 
     // the pool-size slide only appears once shared mode is picked

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/banner.png" alt="ScreenRun" width="100%">
+  <img src="docs/banner.png" alt="Runs" width="100%">
 </p>
 
-# ScreenRun
+# Runs: Screen Time & Focus
 
 A few short runs a day. That's all the social media you get.
 
@@ -12,7 +12,7 @@ That's the whole thing.
 
 ## How it works
 
-ScreenRun uses Apple's Screen Time frameworks (Family Controls, Managed Settings, Device Activity) to shield the apps you pick. The block is real. Starting a run unshields one app for its run window. A Device Activity event re-shields it the moment the time is spent, even if ScreenRun isn't open.
+Runs uses Apple's Screen Time frameworks (Family Controls, Managed Settings, Device Activity) to shield the apps you pick. The block is real. Starting a run unshields one app for its run window. A Device Activity event re-shields it the moment the time is spent, even if Runs isn't open.
 
 - **A run is one timed visit.** You decide how long and how many per day.
 - **Shared pool or per-app.** Four runs total across everything, or separate counts per app. Your call.
