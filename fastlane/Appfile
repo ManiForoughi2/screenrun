@@ -1,0 +1,4 @@
+app_identifier("com.manif.runs")
+
+# Using App Store Connect API key auth (key_id/issuer_id/.p8 in before_all),
+# so no apple_id / team_id is needed here.

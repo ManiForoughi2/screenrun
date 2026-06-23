@@ -1,0 +1,27 @@
+You don't get unlimited social media. You get a few short runs a day.
+
+Runs is a minimalist screen time app built on one idea: instead of an all-or-nothing app blocker, you give yourself a fixed number of timed "runs" for each app. Each run opens one app for a set number of minutes, with a live countdown. When the timer hits zero, the app locks again. When you're out of runs, it stays locked until midnight.
+
+No streaks to maintain. No points. No nagging. Just a hard limit you set once and then live inside.
+
+HOW IT WORKS
+- Pick the apps you want to limit (Instagram, X, TikTok, YouTube, anything).
+- For each one, set how many minutes a run lasts and how many runs you get per day.
+- Those apps stay blocked by default. Tap START RUN to open one for its run window.
+- A Live Activity counts down on your lock screen and Dynamic Island.
+- When the run ends, the app reblocks itself, even if Runs is closed.
+- Everything resets at midnight.
+
+WHY RUNS
+- Turn mindless scrolling into a deliberate choice. Every run is one you decided to spend.
+- Beat the doomscroll without quitting cold turkey.
+- Build a calmer relationship with your phone, one run at a time.
+- Less time lost to apps, more time for the things you actually meant to do.
+
+PRIVATE BY DESIGN
+Runs does everything on your device. No account, no sign-up, no tracking. Nothing you do is collected or sent anywhere. Your limits and usage never leave your phone.
+
+BUILT FOR FOCUS
+Black and white. Monospaced. No feed, no badges, no chrome. The app gets out of your way so you can get on with your day.
+
+Set your runs. Spend them well.

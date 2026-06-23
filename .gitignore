@@ -1,0 +1,31 @@
+# Xcode
+build/
+build-device/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+
+# XcodeGen generates this from project.yml — project.yml is the source of truth
+Runs.xcodeproj/
+
+# fastlane / App Store Connect secrets
+AuthKey_*.p8
+play-store-key.json
+asc_api_key.json
+.env
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output
+fastlane/README.md
+
+# personal review contact info (App Store Connect only)
+fastlane/metadata/review_information/
+
+# ruby / editor cruft
+.ruby-lsp/
+.bundle/
+vendor/bundle/
+
+# macOS
+.DS_Store

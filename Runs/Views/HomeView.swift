@@ -1,0 +1,153 @@
+import SwiftUI
+import FamilyControls
+import StoreKit
+
+struct HomeView: View {
+    @EnvironmentObject var engine: RunEngine
+    @EnvironmentObject var store: RunStore
+    @Environment(\.requestReview) private var requestReview
+    @State private var showSettings = false
+
+    private var hasActiveRun: Bool { store.activeRun != nil }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            header
+
+            if hasActiveRun, let run = store.activeRun {
+                ActiveRunView(run: run)
+                    .transition(.opacity)
+            } else if store.limits.isEmpty {
+                emptyState
+            } else {
+                list
+            }
+        }
+        .screenBackground()
+        .animation(.easeInOut(duration: 0.2), value: hasActiveRun)
+        .onChange(of: hasActiveRun) { active in
+            // ask for review on run-end, never during onboarding
+            if !active { maybeAskForReview() }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environmentObject(engine)
+                .environmentObject(store)
+                .preferredColorScheme(store.themeMode.colorScheme)
+        }
+    }
+
+    private func maybeAskForReview() {
+        guard store.shouldRequestReviewNow() else { return }
+        // delay so review sheet doesnt fight the run-end transition
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            requestReview()
+        }
+    }
+
+    private var header: some View {
+        HStack {
+            Text("RUNS")
+                .font(Theme.mono(18, .bold))
+                .tracking(3)
+                .foregroundStyle(Theme.fg)
+            Spacer()
+            Button {
+                showSettings = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(Theme.fg)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .disabled(hasActiveRun)
+            .opacity(hasActiveRun ? 0.3 : 1)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
+        .padding(.bottom, 20)
+    }
+
+    private var list: some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                ForEach(store.limits) { limit in
+                    RunRow(limit: limit)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 32)
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 18) {
+            Spacer()
+            Text("no apps yet.")
+                .font(Theme.mono(15))
+                .foregroundStyle(Theme.dim)
+            Button {
+                showSettings = true
+            } label: {
+                Text("CHOOSE APPS")
+            }
+            .buttonStyle(OutlineButtonStyle())
+            .padding(.horizontal, 60)
+            Spacer()
+            Spacer()
+        }
+    }
+}
+
+private struct RunRow: View {
+    @EnvironmentObject var engine: RunEngine
+    @EnvironmentObject var store: RunStore
+    let limit: LimitConfig
+
+    private var left: Int { store.runsLeft(for: limit) }
+    private var total: Int { store.runsTotal(for: limit) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .center) {
+                // Label(token) renders Apples real icon + name, token is opaque otherwise
+                Label(limit.token)
+                    .labelStyle(.titleAndIcon)
+                    .font(Theme.mono(22, .bold))
+                    .foregroundStyle(Theme.fg)
+                Spacer()
+                Text("\(limit.minutesPerRun) MIN / RUN")
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.dim)
+            }
+
+            HStack(spacing: 6) {
+                ForEach(0..<total, id: \.self) { i in
+                    Circle()
+                        .fill(i < left ? Theme.fg : Color.clear)
+                        .overlay(Circle().stroke(Theme.fg, lineWidth: 1))
+                        .frame(width: 12, height: 12)
+                }
+                Spacer()
+                Text("\(left)/\(total) LEFT")
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.dim)
+            }
+
+            Button {
+                engine.startRun(for: limit)
+            } label: {
+                Text(left > 0 ? "START RUN" : "DONE FOR TODAY")
+            }
+            .buttonStyle(OutlineButtonStyle(filled: left > 0))
+            .disabled(left == 0 || !store.canStartRun(for: limit))
+            .opacity(left == 0 ? 0.4 : 1)
+        }
+        .padding(18)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(Theme.hairline, lineWidth: 1)
+        )
+    }
+}

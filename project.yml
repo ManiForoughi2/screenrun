@@ -1,0 +1,152 @@
+name: Runs
+options:
+  bundleIdPrefix: com.manif.runs
+  deploymentTarget:
+    iOS: "16.2"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: 883U8FU57P
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+
+targets:
+  Runs:
+    type: application
+    platform: iOS
+    sources:
+      - path: Runs
+    info:
+      path: Runs/Info.plist
+      properties:
+        UIAppFonts:
+          - FairfaxHD.ttf
+        NSSupportsLiveActivities: true
+        CFBundleDisplayName: Runs
+        CFBundleURLTypes:
+          - CFBundleURLName: com.manif.runs.deeplink
+            CFBundleURLSchemes:
+              - screenrun
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.manif.runs
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: Runs/Runs.entitlements
+    entitlements:
+      path: Runs/Runs.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.manif.runs
+    dependencies:
+      - target: RunsWidget
+      - target: RunsMonitor
+      - target: RunsShield
+      - target: RunsShieldAction
+      - sdk: FamilyControls.framework
+      - sdk: ManagedSettings.framework
+      - sdk: DeviceActivity.framework
+      - sdk: ActivityKit.framework
+
+  RunsWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: RunsWidget
+      - path: Runs/Shared/RunActivityAttributes.swift
+      - path: Runs/Shared/AppGroup.swift
+      - path: Runs/Shared/WidgetSnapshot.swift
+      - path: Runs/Fonts/FairfaxHD.ttf
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.manif.runs.widget
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: RunsWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: RunsWidget/RunsWidget.entitlements
+    entitlements:
+      path: RunsWidget/RunsWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.manif.runs
+    dependencies:
+      - sdk: SwiftUI.framework
+      - sdk: WidgetKit.framework
+      - sdk: ActivityKit.framework
+
+  RunsMonitor:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: RunsMonitor
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.manif.runs.monitor
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: RunsMonitor/Info.plist
+        CODE_SIGN_ENTITLEMENTS: RunsMonitor/RunsMonitor.entitlements
+    entitlements:
+      path: RunsMonitor/RunsMonitor.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.manif.runs
+    dependencies:
+      - sdk: DeviceActivity.framework
+      - sdk: ManagedSettings.framework
+
+  # the custom block screen (replaces iOS's default "App is restricted" shield).
+  # decides between the "out of runs / resets at midnight" and the "start a run"
+  # states by reading the shared App Group state, themed to match Runs.
+  RunsShield:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: RunsShield
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.manif.runs.shield
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: RunsShield/Info.plist
+        CODE_SIGN_ENTITLEMENTS: RunsShield/RunsShield.entitlements
+    entitlements:
+      path: RunsShield/RunsShield.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.manif.runs
+    dependencies:
+      - sdk: ManagedSettings.framework
+      - sdk: ManagedSettingsUI.framework
+
+  # handles taps on the custom shield's buttons. records the user's intent in the
+  # App Group and dismisses the shield (iOS won't let this process launch the app).
+  RunsShieldAction:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: RunsShieldAction
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.manif.runs.shieldaction
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: RunsShieldAction/Info.plist
+        CODE_SIGN_ENTITLEMENTS: RunsShieldAction/RunsShieldAction.entitlements
+    entitlements:
+      path: RunsShieldAction/RunsShieldAction.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.manif.runs
+    dependencies:
+      - sdk: ManagedSettings.framework
