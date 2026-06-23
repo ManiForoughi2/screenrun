@@ -11,13 +11,21 @@ Runs.xcodeproj/
 
 # fastlane / App Store Connect secrets
 AuthKey_*.p8
+*.p8
+*.p12
+*.cer
+*.mobileprovision
+*.keystore
+*.jks
 play-store-key.json
 asc_api_key.json
 .env
+.env.*
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/test_output
 fastlane/README.md
+fastlane/*.log
 
 # personal review contact info (App Store Connect only)
 fastlane/metadata/review_information/
@@ -26,6 +34,17 @@ fastlane/metadata/review_information/
 .ruby-lsp/
 .bundle/
 vendor/bundle/
+*.gem
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# editor
+.idea/
+*.swp
+*~
 
 # macOS
 .DS_Store
+**/.DS_Store
