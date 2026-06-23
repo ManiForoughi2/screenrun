@@ -4,7 +4,7 @@
 
 # ScreenRun
 
-You don't get endless scrolling. You get a few short runs a day.
+A few short runs a day. That's all the social media you get.
 
 Pick the apps that eat your time. Give each one a run length (3 minutes) and how many runs a day (4). The rest of the day those apps are locked. Tap **Start Run**, the app opens, a timer counts down on your lock screen, and when it hits zero the app locks again. Out of runs? Locked until tomorrow.
 
