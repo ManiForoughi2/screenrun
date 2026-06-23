@@ -25,8 +25,9 @@ struct RunLiveActivity: Widget {
                     Text(timerInterval: context.state.startedAt...context.state.endsAt, countsDown: true)
                         .font(.system(size: 34, weight: .bold, design: .monospaced))
                         .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                         .multilineTextAlignment(.trailing)
-                        .frame(width: 96)
                         .foregroundStyle(.white)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
@@ -45,14 +46,18 @@ struct RunLiveActivity: Widget {
                 Text(timerInterval: context.state.startedAt...context.state.endsAt, countsDown: true)
                     .font(.system(.caption2, design: .monospaced).weight(.semibold))
                     .monospacedDigit()
-                    .frame(width: 40)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .fixedSize()
                     .foregroundStyle(.white)
                     .padding(.leading, 2)
             } minimal: {
                 Text(timerInterval: context.state.startedAt...context.state.endsAt, countsDown: true)
                     .font(.system(.caption2, design: .monospaced).weight(.semibold))
                     .monospacedDigit()
-                    .frame(width: 36)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .fixedSize()
                     .foregroundStyle(.white)
             }
             .keylineTint(.white)
@@ -75,10 +80,12 @@ private struct LockScreenRunView: View {
                         .font(.system(.title2, design: .monospaced).weight(.bold))
                         .foregroundStyle(.white)
                 }
-                Spacer()
+                Spacer(minLength: 8)
                 Text(timerInterval: context.state.startedAt...context.state.endsAt, countsDown: true)
                     .font(.system(size: 44, weight: .bold, design: .monospaced))
                     .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.trailing)
                     .foregroundStyle(.white)
             }

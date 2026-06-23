@@ -68,6 +68,21 @@ platform :ios do
     )
   end
 
+  desc "Upload App Store screenshots only (iPhone 6.9in + iPad 13in) — no build, no metadata"
+  lane :screenshots do
+    upload_to_app_store(
+      app_identifier:        IOS_APP_ID,
+      skip_binary_upload:    true,
+      skip_metadata:         true,
+      skip_screenshots:      false,
+      overwrite_screenshots: true,
+      submit_for_review:     false,
+      automatic_release:     false,
+      force:                 true,
+      precheck_include_in_app_purchases: false
+    )
+  end
+
   desc "Set content rights (no third-party content) + export-compliance (no non-exempt encryption)"
   lane :content_rights do
     require 'spaceship'

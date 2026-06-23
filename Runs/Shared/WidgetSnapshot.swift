@@ -15,7 +15,13 @@ struct WidgetSnapshot: Codable {
     var activeLabel: String?    // set while a run is live
     var activeEndsAt: Date?
 
-    static let empty = WidgetSnapshot(items: [], activeLabel: nil, activeEndsAt: nil)
+    // widgets only render in shared-pool mode; per-app has no single number to show
+    var isPooled: Bool = true
+    var poolLeft: Int = 0       // runs remaining in the shared pool
+    var poolTotal: Int = 0      // pool size
+
+    static let empty = WidgetSnapshot(items: [], activeLabel: nil, activeEndsAt: nil,
+                                      isPooled: true, poolLeft: 0, poolTotal: 0)
 }
 
 extension StoreKey {

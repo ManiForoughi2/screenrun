@@ -19,8 +19,18 @@ struct SettingsView: View {
 
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(store.limits) { limit in
-                        LimitCard(limit: limit) { editing = limit }
+                    themeSection
+
+                    runModeSection
+                        .padding(.top, 26)
+
+                    if !store.limits.isEmpty {
+                        VStack(spacing: 12) {
+                            ForEach(store.limits) { limit in
+                                LimitCard(limit: limit) { editing = limit }
+                            }
+                        }
+                        .padding(.top, 26)
                     }
 
                     Button {
@@ -30,13 +40,7 @@ struct SettingsView: View {
                         Text(store.limits.isEmpty ? "CHOOSE APPS" : "EDIT APP SELECTION")
                     }
                     .buttonStyle(OutlineButtonStyle())
-                    .padding(.top, 4)
-
-                    themeSection
-                        .padding(.top, 26)
-
-                    runModeSection
-                        .padding(.top, 22)
+                    .padding(.top, store.limits.isEmpty ? 26 : 4)
 
                     lockSection
                         .padding(.top, 22)

@@ -126,7 +126,10 @@ final class RunStore: ObservableObject {
         let snapshot = WidgetSnapshot(
             items: items,
             activeLabel: activeRun.map { $0.label.isEmpty ? "RUN" : $0.label },
-            activeEndsAt: activeRun?.endsAt
+            activeEndsAt: activeRun?.endsAt,
+            isPooled: runMode == .shared,
+            poolLeft: max(0, sharedRuns - sharedUsed),
+            poolTotal: sharedRuns
         )
         encode(snapshot, StoreKey.widgetSnapshot)
         #if canImport(WidgetKit)

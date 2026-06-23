@@ -1,27 +1,25 @@
-You don't get unlimited social media. You get a few short runs a day.
+A few short runs a day. That's all the social media you get.
 
-Runs is a minimalist screen time app built on one idea: instead of an all-or-nothing app blocker, you give yourself a fixed number of timed "runs" for each app. Each run opens one app for a set number of minutes, with a live countdown. When the timer hits zero, the app locks again. When you're out of runs, it stays locked until midnight.
+Runs gives you a set number of timed "runs" for each app you want to limit. A run opens one app for a few minutes, with a countdown going the whole time. When it hits zero the app locks back up. Use up your runs and it stays locked until midnight, when everything starts over.
 
-No streaks to maintain. No points. No nagging. Just a hard limit you set once and then live inside.
+You set the numbers yourself. Three minutes a run, five runs a day for Instagram. Two minutes, three runs for X. Whatever keeps you honest.
 
 HOW IT WORKS
-- Pick the apps you want to limit (Instagram, X, TikTok, YouTube, anything).
-- For each one, set how many minutes a run lasts and how many runs you get per day.
-- Those apps stay blocked by default. Tap START RUN to open one for its run window.
+- Pick the apps you want to limit. Instagram, TikTok, X, YouTube, all of them.
+- Set how long a run lasts and how many you get per day, per app.
+- Those apps stay locked. Tap START RUN to open one for its window.
 - A Live Activity counts down on your lock screen and Dynamic Island.
-- When the run ends, the app reblocks itself, even if Runs is closed.
-- Everything resets at midnight.
+- The app locks itself again when time's up, even if Runs is closed.
+- Midnight resets the counters.
 
-WHY RUNS
-- Turn mindless scrolling into a deliberate choice. Every run is one you decided to spend.
-- Beat the doomscroll without quitting cold turkey.
-- Build a calmer relationship with your phone, one run at a time.
-- Less time lost to apps, more time for the things you actually meant to do.
+There's also a commitment lock if you want it. Lock your settings for a day, a week, a month, or for good. While it's locked you can make your limits stricter but you can't loosen them. Handy for the version of you at 11pm who suddenly thinks five runs wasn't enough.
 
-PRIVATE BY DESIGN
-Runs does everything on your device. No account, no sign-up, no tracking. Nothing you do is collected or sent anywhere. Your limits and usage never leave your phone.
+FREE AND OPEN SOURCE
+Runs is free. No ads, no in-app purchases, no subscription. The whole thing is open source under the MIT license, up on GitHub at github.com/ManiForoughi2/runs-screen-time. You can read exactly what it does and what it doesn't.
 
-BUILT FOR FOCUS
-Black and white. Monospaced. No feed, no badges, no chrome. The app gets out of your way so you can get on with your day.
+YOUR DATA STAYS YOURS
+No account, no sign-up, no tracking. Your apps, limits, and usage all live on your phone and never leave it. There's no server to send them to. I didn't build one.
+
+Black and white, monospaced, no feed and no badges. It does the one thing and gets out of the way.
 
 Set your runs. Spend them well.

@@ -48,9 +48,11 @@ enum ShieldState {
                     text: "this app is resting.\nopen Runs to start a run.",
                     color: Self.dim
                 ),
-                // iOS wont let the extension deep-link, primary just dismisses so user swipes to Runs
+                // iOS wont let the extension launch Runs, so the button only stashes
+                // intent + dismisses. labelled DISMISS so it doesnt promise a launch
+                // it cant deliver; the subtitle is the real call to action.
                 primaryButtonLabel: ShieldConfiguration.Label(
-                    text: "START A RUN",
+                    text: "DISMISS",
                     color: Self.bg
                 ),
                 primaryButtonBackgroundColor: Self.fg

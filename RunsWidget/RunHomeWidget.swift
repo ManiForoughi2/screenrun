@@ -46,39 +46,193 @@ private struct RunProvider: TimelineProvider {
     }
 }
 
+// dots-only: runs left as pips, no number. listed first in the bundle so it's
+// the default the gallery offers.
+struct RunDotsWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "RunDotsWidget", provider: RunProvider()) { entry in
+            if #available(iOS 17.0, *) {
+                RunWidgetView(entry: entry, showNumber: false)
+                    .containerBackground(.background, for: .widget)
+            } else {
+                RunWidgetView(entry: entry, showNumber: false)
+                    .padding()
+                    .background(Color(.systemBackground))
+            }
+        }
+        .configurationDisplayName("Runs Left · Dots")
+        .description("Runs left in your shared pool, shown as dots.")
+        .supportedFamilies(Self.families)
+    }
+
+    static let families: [WidgetFamily] = {
+        if #available(iOS 16.0, *) {
+            return [.systemSmall, .systemMedium,
+                    .accessoryCircular, .accessoryRectangular, .accessoryInline]
+        }
+        return [.systemSmall, .systemMedium]
+    }()
+}
+
 struct RunHomeWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "RunHomeWidget", provider: RunProvider()) { entry in
             if #available(iOS 17.0, *) {
                 // containerBackground required iOS17+, padding fallback below
-                RunWidgetView(entry: entry)
+                RunWidgetView(entry: entry, showNumber: true)
                     .containerBackground(.background, for: .widget)
             } else {
-                RunWidgetView(entry: entry)
+                RunWidgetView(entry: entry, showNumber: true)
                     .padding()
                     .background(Color(.systemBackground))
             }
         }
-        .configurationDisplayName("Start a Run")
-        .description("Tap an app to start a run without opening Runs first.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .configurationDisplayName("Runs Left · Number")
+        .description("See how many runs are left in your shared pool.")
+        .supportedFamilies(RunDotsWidget.families)
     }
 }
 
 private struct RunWidgetView: View {
-    @Environment(\.widgetFamily) var family
+    @Environment(\.widgetFamily) private var family
     let entry: RunEntry
+    let showNumber: Bool
+
+    private var isLockScreen: Bool {
+        if #available(iOS 16.0, *) {
+            return family == .accessoryCircular
+                || family == .accessoryRectangular
+                || family == .accessoryInline
+        }
+        return false
+    }
 
     var body: some View {
-        if let label = entry.snapshot.activeLabel, let endsAt = entry.snapshot.activeEndsAt {
+        if isLockScreen {
+            LockScreenView(entry: entry, showNumber: showNumber, family: family)
+        } else if let label = entry.snapshot.activeLabel, let endsAt = entry.snapshot.activeEndsAt {
             ActiveRunWidget(label: label, endsAt: endsAt)
-        } else if entry.snapshot.items.isEmpty {
-            EmptyWidget()
-        } else if family == .systemSmall {
-            SmallWidget(item: entry.snapshot.items[0])
+        } else if !entry.snapshot.isPooled {
+            // per-app mode has no single pool number to show, so the widget cant render it
+            UnpooledWidget()
         } else {
-            MediumWidget(items: entry.snapshot.items)
+            PoolWidget(left: entry.snapshot.poolLeft, total: entry.snapshot.poolTotal,
+                       showNumber: showNumber)
         }
+    }
+}
+
+// lock-screen accessory rendering. monochrome/vibrant, very small, so keep it to
+// a count or a compact pip row. per-app mode has no pool number, show a dash.
+@available(iOS 16.0, *)
+private struct LockScreenView: View {
+    let entry: RunEntry
+    let showNumber: Bool
+    let family: WidgetFamily
+
+    private var left: Int { entry.snapshot.poolLeft }
+    private var total: Int { entry.snapshot.poolTotal }
+    private var pooled: Bool { entry.snapshot.isPooled }
+
+    var body: some View {
+        Group {
+            switch family {
+            case .accessoryInline:
+                // single line, system tints it. text is unavoidable here
+                Text(pooled ? "\(left)/\(total) runs" : "shared pool only")
+            case .accessoryCircular:
+                if pooled {
+                    if showNumber {
+                        Text("\(left)").font(.system(size: 26, weight: .semibold)).minimumScaleFactor(0.4)
+                    } else {
+                        // dots wrap into the circle
+                        DotGrid(left: left, total: total, dotSize: 7)
+                    }
+                } else {
+                    Text("—").font(.system(size: 22, weight: .semibold))
+                }
+            default: // accessoryRectangular
+                if pooled {
+                    HStack(spacing: 6) {
+                        if showNumber {
+                            Text("\(left)").font(.system(size: 22, weight: .semibold)).monospacedDigit()
+                        }
+                        DotGrid(left: left, total: total, dotSize: 8)
+                    }
+                } else {
+                    Text("shared pool only").font(.system(size: 13, weight: .medium))
+                }
+            }
+        }
+        .widgetURL(URL(string: "\(deepLinkScheme)://home"))
+    }
+}
+
+// pips that wrap, for tight accessory spaces. plain primary color so the system
+// vibrant rendering can tint them on the lock screen.
+@available(iOS 16.0, *)
+private struct DotGrid: View {
+    let left: Int
+    let total: Int
+    let dotSize: CGFloat
+
+    private var columns: [GridItem] {
+        let perRow = total <= 4 ? total : Int(ceil(Double(total) / 2.0))
+        return Array(repeating: GridItem(.fixed(dotSize), spacing: dotSize * 0.5),
+                     count: max(perRow, 1))
+    }
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: dotSize * 0.5) {
+            ForEach(0..<max(total, 1), id: \.self) { i in
+                Circle()
+                    .fill(i < left ? Color.primary : Color.clear)
+                    .overlay(Circle().stroke(Color.primary, lineWidth: 1))
+                    .frame(width: dotSize, height: dotSize)
+            }
+        }
+    }
+}
+
+// shared-pool: runs left in the pool. minimal, no text labels. dots always show;
+// the number is opt-in so we can offer a dots-only variant.
+private struct PoolWidget: View {
+    let left: Int
+    let total: Int
+    let showNumber: Bool
+
+    var body: some View {
+        VStack(spacing: showNumber ? 12 : 0) {
+            if showNumber {
+                Text("\(left)")
+                    .font(W.mono(72))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .foregroundStyle(W.fg)
+            }
+            Pips(left: left, total: total, dotSize: showNumber ? 9 : 16)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .widgetURL(URL(string: "\(deepLinkScheme)://home"))
+    }
+}
+
+// per-app mode: tell the user widgets need the shared pool turned on.
+private struct UnpooledWidget: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("RUNS")
+                .font(W.mono(14))
+                .tracking(2)
+                .foregroundStyle(W.fg)
+            Text("widgets only work\nwith shared pool")
+                .font(W.mono(12))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(W.dim)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .widgetURL(URL(string: "\(deepLinkScheme)://home"))
     }
 }
 
@@ -100,121 +254,28 @@ private struct ActiveRunWidget: View {
             Text(timerInterval: Date()...endsAt, countsDown: true)
                 .font(W.mono(34))
                 .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
                 .foregroundStyle(W.fg)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .widgetURL(URL(string: "\(deepLinkScheme)://home"))
-    }
-}
-
-private struct EmptyWidget: View {
-    var body: some View {
-        VStack(spacing: 8) {
-            Text("RUNS")
-                .font(W.mono(14))
-                .tracking(2)
-                .foregroundStyle(W.fg)
-            Text("choose apps to begin")
-                .font(W.mono(11))
-                .foregroundStyle(W.dim)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .widgetURL(URL(string: "\(deepLinkScheme)://home"))
-    }
-}
-
-private struct SmallWidget: View {
-    let item: WidgetSnapshot.Item
-
-    private var canRun: Bool { item.runsLeft > 0 }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(item.label.uppercased())
-                    .font(W.mono(18))
-                    .foregroundStyle(W.fg)
-                    .lineLimit(1)
-                Spacer()
-            }
-            Pips(left: item.runsLeft, total: item.runsTotal)
-            Spacer(minLength: 2)
-            Text(canRun ? "START RUN" : "DONE TODAY")
-                .font(W.mono(13))
-                .foregroundStyle(canRun ? Color(.systemBackground) : W.dim)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(canRun ? W.fg : Color.clear)
-                .overlay(RoundedRectangle(cornerRadius: 11).stroke(W.fg, lineWidth: 1.1))
-                .clipShape(RoundedRectangle(cornerRadius: 11))
-                .opacity(canRun ? 1 : 0.4)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .widgetURL(runURL(for: item))
-    }
-}
-
-private struct MediumWidget: View {
-    let items: [WidgetSnapshot.Item]
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Text("START A RUN")
-                .font(W.mono(11))
-                .tracking(3)
-                .foregroundStyle(W.dim)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 8)
-
-            ForEach(Array(items.prefix(3).enumerated()), id: \.element.id) { idx, item in
-                Link(destination: runURL(for: item)!) {
-                    Row(item: item)
-                }
-                if idx < min(items.count, 3) - 1 {
-                    Rectangle().fill(W.hairline).frame(height: 1).padding(.vertical, 7)
-                }
-            }
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-
-    private struct Row: View {
-        let item: WidgetSnapshot.Item
-        private var canRun: Bool { item.runsLeft > 0 }
-        var body: some View {
-            HStack(spacing: 10) {
-                Text(item.label.uppercased())
-                    .font(W.mono(16))
-                    .foregroundStyle(canRun ? W.fg : W.dim)
-                    .lineLimit(1)
-                Spacer()
-                Pips(left: item.runsLeft, total: item.runsTotal)
-                Text(canRun ? "▶" : "·")
-                    .font(W.mono(15))
-                    .foregroundStyle(canRun ? W.fg : W.dim)
-            }
-        }
     }
 }
 
 private struct Pips: View {
     let left: Int
     let total: Int
+    var dotSize: CGFloat = 9
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: dotSize * 0.55) {
             ForEach(0..<max(total, 1), id: \.self) { i in
                 Circle()
                     .fill(i < left ? W.fg : Color.clear)
                     .overlay(Circle().stroke(W.fg, lineWidth: 1))
-                    .frame(width: 9, height: 9)
+                    .frame(width: dotSize, height: dotSize)
             }
         }
     }
 }
 
-private func runURL(for item: WidgetSnapshot.Item) -> URL? {
-    item.runsLeft > 0
-        ? URL(string: "\(deepLinkScheme)://run/\(item.id.uuidString)")
-        : URL(string: "\(deepLinkScheme)://home")
-}

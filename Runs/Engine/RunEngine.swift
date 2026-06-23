@@ -90,30 +90,13 @@ final class RunEngine: ObservableObject {
         }
     }
 
-    // shield action extension cant launch us (iOS forbids it) so on START A RUN
-    // tap it stashes the token in the app group, we pick it up next foreground.
-    // one-shot and short TTL so a stale tap doesnt silently burn a run
-    private static let shieldIntentTTL: TimeInterval = 60
-
+    // the shield used to stash a start-a-run intent that we consumed on foreground,
+    // but the button is now DISMISS and no longer stashes. wipe any leftover stash
+    // from before that change so it cant auto-start a run the user didnt ask for.
     func consumeShieldIntent() {
         let defaults = AppGroup.defaults
-        guard let data = defaults.data(forKey: StoreKey.shieldIntentToken) else { return }
-        let at = defaults.double(forKey: StoreKey.shieldIntentAt)
-
-        // always clear so it cant fire twice, even if we dont act on it
         defaults.removeObject(forKey: StoreKey.shieldIntentToken)
         defaults.removeObject(forKey: StoreKey.shieldIntentAt)
-
-        guard at > 0, Date().timeIntervalSince1970 - at <= Self.shieldIntentTTL else { return }
-        guard let token = try? JSONDecoder().decode(ApplicationToken.self, from: data),
-              let limit = store.limits.first(where: { $0.token == token })
-        else { return }
-
-        store.rolloverIfNeeded()
-        endRunIfExpired()
-        if store.canStartRun(for: limit) {
-            startRun(for: limit)
-        }
     }
 
     func startRun(for limit: LimitConfig) {
